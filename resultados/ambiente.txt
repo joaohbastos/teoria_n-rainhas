@@ -1,0 +1,8 @@
+CPU: Intel(R) Core(TM) i7-8565U CPU @ 1.80GHz
+Nucleos logicos: 8
+RAM: 7.9 GB
+Sistema operacional: Windows 11 (10.0.26200)
+Python: CPython 3.13.2
+Compilador C: gcc (MinGW.org GCC-6.3.0-1) 6.3.0
+Compilacao: gcc -O2 -std=c11 -Wall -Wextra -o nrainhas c/main.c c/forca_bruta.c c/backtracking.c
+Repeticoes: 15; limite de viabilidade: 60 s

@@ -1,0 +1,13 @@
+linguagem,algoritmo,tipo,maior_n_viavel,primeiro_n_inviavel
+python,forca_bruta,melhor,17,
+python,forca_bruta,medio,12,13
+python,forca_bruta,pior,10,11
+python,backtracking,melhor,17,
+python,backtracking,medio,17,
+python,backtracking,pior,14,15
+c,forca_bruta,melhor,17,
+c,forca_bruta,medio,13,14
+c,forca_bruta,pior,12,13
+c,backtracking,melhor,17,
+c,backtracking,medio,17,
+c,backtracking,pior,15,16
