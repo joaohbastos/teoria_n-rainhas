@@ -3,6 +3,7 @@
 static int proxima_permutacao(int *a, int n)
 {
     int i = n - 2;
+    MEM_PILHA();
     while (i >= 0 && a[i] >= a[i + 1])
         i--;
     if (i < 0)
@@ -32,6 +33,7 @@ static int valida(const int *p, int n)
     int d2[2 * MAXN];        
     int ok = 1;
 
+    MEM_PILHA();
     for (int d = 0; d < 2 * n - 1; d++)   
         d1[d] = d2[d] = 0;
 
@@ -51,6 +53,9 @@ void forca_bruta(int n, const int *pi, int modo, Resultado *r)
     int idx[MAXN];   
     int p[MAXN];
 
+    MEM_INICIO();
+    /* tudo na pilha: idx e p aqui, d1 e d2 em valida */
+    MEM_VETORES(0, sizeof idx + sizeof p + 2 * sizeof(int[2 * MAXN]));
     for (int i = 0; i < n; i++)
         idx[i] = i;
 

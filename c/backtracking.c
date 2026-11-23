@@ -12,12 +12,16 @@ static long long nos;
 
 static int coloca(int i)
 {
+    MEM_ENTRA();
     nos++;
 
-    if (i == n_) {           
-        if (modo_ == MODO_PRIMEIRA)
+    if (i == n_) {
+        if (modo_ == MODO_PRIMEIRA) {
+            MEM_SAI();
             return 1;
+        }
         total++;
+        MEM_SAI();
         return 0;
     }
 
@@ -28,16 +32,22 @@ static int coloca(int i)
         if (!col[c] && !d1[a] && !d2[b]) {
             col[c] = d1[a] = d2[b] = 1;     
             p[i] = c;
-            if (coloca(i + 1))
+            if (coloca(i + 1)) {
+                MEM_SAI();
                 return 1;
-            col[c] = d1[a] = d2[b] = 0;    
+            }
+            col[c] = d1[a] = d2[b] = 0;
         }
     }
+    MEM_SAI();
     return 0;
 }
 
 void backtracking(int n, const int *pi, int modo, Resultado *r)
 {
+    MEM_INICIO();
+    MEM_VETORES(sizeof col + sizeof d1 + sizeof d2 + sizeof p,
+                sizeof col + sizeof d1 + sizeof d2 + sizeof p);
     n_ = n;
     pi_ = pi;
     modo_ = modo;

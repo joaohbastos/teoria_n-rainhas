@@ -32,6 +32,8 @@ comum.py              funções usadas por testes.py e medir.py
 resultados/           saídas de medir.py e graficos.py
 ```
 
+Os arquivos do bônus de memória (`c/main_memoria.c`, `medir_memoria.py`, `testes_memoria.py`, `graficos_memoria.py`, `entradas/entradas_memoria.txt`) estão descritos em [Bônus: memória](#bônus-memória).
+
 ## Requisitos
 
 - Python 3.10 ou mais novo
@@ -117,3 +119,46 @@ linguagem,algoritmo,tipo,n,entrada,repeticao,chamadas,tempo_ns,contador,resultad
 4. a contagem de soluções bate com os valores conhecidos (OEIS A000170);
 5. no melhor caso a solução devolvida é a própria π;
 6. n = 2 e n = 3 não têm solução.
+
+## Bônus: memória
+
+Mede o uso de memória das quatro implementações e compara com a complexidade de espaço teórica, Θ(n) nos dois algoritmos. Não mede tempo, não usa os arquivos de `medir.py` e não muda nenhum arquivo que já existia em `resultados/` (lê `resumo.csv`, só para comparar com o tempo no gráfico).
+
+```
+gcc -O2 -std=c11 -Wall -Wextra -DMEDIR_MEMORIA -o nrainhas_mem c/main_memoria.c c/forca_bruta.c c/backtracking.c
+python testes_memoria.py
+python medir_memoria.py
+python graficos_memoria.py
+```
+
+1. O `gcc` gera um executável separado, `nrainhas_mem` (`nrainhas_mem.exe` no Windows). A instrumentação fica em macros de `c/nrainhas.h` que só existem com `-DMEDIR_MEMORIA`; na build normal elas viram `((void)0)` e o código de máquina de `nrainhas` é o mesmo de antes.
+2. `testes_memoria.py` confere que a profundidade máxima de recursão é n + 1 no backtracking e 0 na força bruta, igual em Python e em C, que `nrainhas_mem` dá as mesmas respostas e contadores que o Python e que a pilha do backtracking em C cresce o mesmo número de bytes por nível. Termina com `OK`.
+3. `medir_memoria.py` grava `entradas/entradas_memoria.txt`, `resultados/memoria.csv`, `resultados/memoria_resumo.csv` e `resultados/ambiente_memoria.txt`. Leva menos de 1 minuto. Se `nrainhas_mem` não existir ou não puder ser executado, mede só o Python e avisa.
+4. `graficos_memoria.py` grava `resultados/fig7_memoria.png`. Funciona com ou sem as linhas de C.
+
+### O que é medido
+
+- **Python**: pico de memória alocada durante a chamada, com `tracemalloc` (pico menos a memória já alocada antes da chamada), e profundidade máxima de chamadas aninhadas a `coloca`, com `sys.setprofile`. As duas coisas rodam em chamadas separadas, e cada par (algoritmo, entrada) roda num processo Python novo. `python/forca_bruta.py` e `python/backtracking.py` não foram alterados.
+- **C**: pilha usada, profundidade máxima de recursão e bytes dos vetores. Uma função-sonda (`mem_sonda`, nunca embutida) devolve o endereço do próprio frame; ela é chamada pelo `main` logo antes do algoritmo (base) e pelas funções mais profundas (`coloca`, `valida`, `proxima_permutacao`). Pilha usada = base − menor endereço visto.
+
+### Entradas
+
+A memória não depende de π, então são usadas entradas de melhor caso (π já é solução), que rodam em microssegundos: n de 4 a 32 (32 é o `MAXN` do C), com π dado pela construção explícita clássica (Hoffman, Loessi e Moore, 1969), conferida por um teste independente de pares de rainhas. Para mostrar a independência de π, n de 4 a 9 também é medido com as 3 primeiras entradas `medio` e com a entrada `pior` de `entradas.txt`. Cada entrada é executada 15 vezes.
+
+### Formato das saídas
+
+`memoria.csv`, uma linha por execução:
+
+```
+linguagem,algoritmo,tipo,n,entrada,repeticao,profundidade_max,memoria_bytes,pilha_bytes,estatico_bytes,vetores_bytes,contador,resultado
+```
+
+- `profundidade_max`: maior número de chamadas a `coloca` ativas ao mesmo tempo.
+- `memoria_bytes`: Python, pico do `tracemalloc`; C, `pilha_bytes + estatico_bytes`.
+- `pilha_bytes` (só C): pilha usada pelo algoritmo, incluindo os vetores locais.
+- `estatico_bytes` (só C): vetores estáticos, fora da pilha (backtracking: `col`, `d1`, `d2`, `p`; força bruta: nenhum).
+- `vetores_bytes` (só C): bytes reservados para todos os vetores do algoritmo. É constante porque o tamanho deles é fixado por `MAXN`.
+- `contador` e `resultado`: iguais aos de `medicoes.csv`.
+- `entrada`: índice da linha em `entradas/entradas_memoria.txt`.
+
+`memoria_resumo.csv` tem uma linha por linguagem, algoritmo, tipo e n, com média e desvio-padrão de `memoria_bytes`, a profundidade máxima, a pilha média (C) e os bytes dos vetores (C). `ambiente_memoria.txt` registra CPU, RAM, sistema, versão do Python, saída de `gcc --version` e `gcc -dumpmachine` e o comando de compilação.
